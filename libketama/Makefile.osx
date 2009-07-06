@@ -1,0 +1,35 @@
+PREFIX=/usr/local
+CFLAGS+=-fPIC -W -Wall -Werror -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch i386 -arch ppc64 -arch x86_64
+# LAME
+LDFLAGS+=-g -dynamiclib -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch i386 -arch ppc64 -arch x86_64
+
+build:
+	gcc $(CFLAGS) -O3 -c md5.c
+	gcc $(CFLAGS) -O3 -c ketama.c
+	gcc $(LDFLAGS) ketama.o md5.o -o libketama.so
+
+debug:
+	gcc $(CFLAGS) -g -DDEBUG -o md5-debug.o -c md5.c
+	gcc $(CFLAGS) -g -DDEBUG -o ketama-debug.o -c ketama.c
+	gcc -g -shared -lm -o libketama.so ketama-debug.o md5-debug.o
+
+test:
+	LD_LIBRARY_PATH=. gcc $(CFLAGS) -I. -O3 -lm -o ketama_test ketama_test.c ./libketama.so
+	@./test.sh
+
+install:
+	@mkdir -p $(PREFIX)/lib
+	@mkdir -p $(PREFIX)/include
+	cp libketama.so $(PREFIX)/lib/
+	cp ketama.h $(PREFIX)/include/
+
+clean:
+	rm -f *.o
+	rm -f libketama.so
+	rm -f ketama_test
+
+uninstall:
+	rm $(PREFIX)/lib/libketama.so
+	rm $(PREFIX)/include/ketama.h
+
+deinstall: uninstall

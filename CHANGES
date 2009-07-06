@@ -1,0 +1,18 @@
+05 Mar 2008
+===========
+Minor cleanup, and addition of downed server test
+as per: http://lists.danga.com/pipermail/memcached/2007-October/005588.html
+
+25 Feb 2008
+===========
+Mac OS X Makefile for universal binary added, from Dan Zinngrabe
+
+03 Aug 2007
+===========
+Applied patches from blogg.se for style and tweaks
+Changed libketama license to BSD
+
+01 May 2007
+===========
+Initial release, libketama, php and java code
+Posted to memcached mailing list

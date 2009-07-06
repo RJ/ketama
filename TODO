@@ -1,0 +1,15 @@
+== TODO ==
+
+* Merge patches/ for FNV-1a hash, it's significantly faster.
+* Better regression tests
+* Stress test whilst updating the servers list (tests shm/sem stuff)
+* Switch to sockaddr_in / in_addr for server storage in memory.
+* Auto-validate server address and port.
+* Keep statistics of key requests (most popular, average, total hits)?
+* Namespaces for keys?
+
+== BUGS ==
+
+* Invalid sever definition file causes ketama_roll to crash (fixed).
+* Removing, adding and removing a server again causes 
+  potential stale keys. (not our concern?)

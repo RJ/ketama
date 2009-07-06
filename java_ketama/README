@@ -1,0 +1,3 @@
+I've just nicked the SockIOPool class from our java memcached library, i think
+all the requisite changes for the ketama stuff are contained within.
+It's easy with java collections anyway :)

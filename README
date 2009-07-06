@@ -1,0 +1,93 @@
+About Ketama
+============
+
+We wrote ketama to replace how our memcached clients mapped keys to servers.
+Previously, clients mapped keys->servers like this:
+
+	server = serverlist[hash(key)%serverlist.length];
+
+This meant that whenever we added or removed servers from the pool, everything
+hashed to different servers, which effectively wiped the entire cache.
+
+Ketama solves this problem in the following way:
+
+ * Take your list of servers (eg: 1.2.3.4:11211, 5.6.7.8:11211, 9.8.7.6:11211)
+ * Hash each server string to several (100-200) unsigned ints
+ * Conceptually, these numbers are placed on a circle called the continuum.
+   (imagine a clock face that goes from 0 to 2^32)
+ * Each number links to the server it was hashed from, so servers appear
+   at several points on the continuum, by each of the numbers they hashed to.
+ * To map a key->server, hash your key to a single unsigned int, and find the
+   next biggest number on the continuum. The server linked to that number is
+   the correct server for that key.
+ * If you hash your key to a value near 2^32 and there are no points on the
+   continuum greater than your hash, return the first server in the continuum.
+
+If you then add or remove a server from the list, only a small proportion of
+keys end up mapping to different servers.
+
+The server file looks like this:
+1.2.3.4:11211	900
+5.6.7.8:11211	300
+9.8.7.6:11211	1500
+
+ip:port and weighting, \t separated, \n line endings.
+Just use the number of megs allocated to the server as the weight.
+The weightings are realised by adding more or less points to the continuum.
+
+
+Implementation
+==============
+
+Included in this tarball:
+	* libketama
+	* php_ketama
+	* java_ketama
+	* python_ketama
+
+
+libketama is a general purpose C library that maps keys to a list of servers.
+The server list is read from a file, and the continuum is created and stored
+in shared memory for future access. If the file modification time changes,
+the continuum is regenerated and shared memory is updated.
+
+php_ketama is a PHP extenstion that wraps libketama. We use this in our PHP
+memcached client library.
+
+java_ketama implements the same logic in pure Java, and has been fitted into our
+Java memcached client library.
+
+python_ketama is a python module (with libketama dependencies) contributed by ludvig@blogg.se.
+
+Installation
+============
+
+* libketama (the general purpose C library)
+
+$ cd libketama
+$ make
+$ make test
+$ su -c "make install"
+
+This will compile libketama and install it to the default prefix /usr/local.
+You can change the prefix by editing the PREFIX variable in 'Makefile'.
+
+* php_ketama (PHP extension that wraps libketama and therefore depends on it)
+
+$ cd php-4.4.x/ext
+$ ln -s /your/ketama/php_ketama ketama
+$ cd ..
+$ rm -Rf autom4te.cache
+$ ./buildconf --force
+$ ./configure --all_your_configure_options --with-ketama[=/your/ketama/prefix]
+$ make
+$ su -c "make install"
+
+* python_ketama (python module that depends on libketama)
+
+$ cd python_ketama
+$ python setup.py build
+$ sudo python setup.py install
+$ python tests.py
+
+Don't forget you might have to restart your httpd!

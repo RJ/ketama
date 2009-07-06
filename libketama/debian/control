@@ -1,0 +1,20 @@
+Source: libketama
+Priority: extra
+Maintainer: Russ Garrett <russ@last.fm>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+Section: libs
+
+Package: libketama-dev
+Section: libdevel
+Architecture: any
+Depends: libketama1 (= ${Source-Version})
+Description: a consistent hashing library - development files
+ libketama is a library for consistently hashing data across nodes.
+
+Package: libketama1
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: a consistent hashing library
+ libketama is a library for consistently hashing data across nodes.
