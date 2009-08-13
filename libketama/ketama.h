@@ -34,12 +34,14 @@
 extern "C" {
 #endif
 
+#ifndef __APPLE__
 union semun
 {
     int val;              /* used for SETVAL only */
     struct semid_ds *buf; /* for IPC_STAT and IPC_SET */
     ushort *array;        /* used for GETALL and SETALL */
 };
+#endif
 
 typedef int (*compfn)( const void*, const void* );
 
