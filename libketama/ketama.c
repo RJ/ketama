@@ -184,13 +184,14 @@ read_server_definitions( char* filename, unsigned int* count, unsigned long* mem
     unsigned int lineno = 0;
     unsigned int numservers = 0;
     unsigned long memtotal = 0;
+    char * ret;
 
     FILE* fi = fopen( filename, "r" );
     while ( fi && !feof( fi ) )
     {
         char sline[128] = "";
 
-        fgets( sline, 127, fi );
+        ret = fgets( sline, 127, fi );
         lineno++;
 
         if ( strlen( sline ) < 2 || sline[0] == '#' )
