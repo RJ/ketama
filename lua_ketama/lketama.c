@@ -1,12 +1,15 @@
 // Copyright 2009 Phoenix Sol - phoenix@burninglabs.com - MIT License //
 
+#include <string.h>
+#include <errno.h>
+#include <lua.h>
+#include <lauxlib.h>
 #include <ketama.h>
 #define LIB_NAME "ketama"
 #define MT_NAME "KETAMA_MT"
 
 
-typedef struct
-{
+typedef struct{
 	ketama_continuum *cont;
 } contdata;
 
@@ -32,25 +35,25 @@ default_error(lua_State *L){
 }
 
 static int
-lketama_error(lua_State *L, TCRDB *rdb){
+lketama_error(lua_State *L){
 	return bool_error(L, 0, ketama_error());
 }
 
 static int
 lketama_roll(lua_State *L){
 	size_t fsiz;
-	const char *filename = luaL_checklstring(L, 1, &fsiz);
+	char *filename = (char *)luaL_checklstring(L, 1, &fsiz);
 	if( fsiz > 255 ) return luaL_argerror(L, 1, "filename must not be longer than 255 bytes");
-	contdata *data = lua_newuserdata(L, sizeof(data));
+	contdata *data = lua_newuserdata(L, sizeof(*data));
 	if(!data) return default_error(L);
-	if(ketama_roll(data->cont, filename) == 0) return nil_error(L, 0, "continuum fail");
+	if(ketama_roll((ketama_continuum*)&data->cont, filename) == 0) return nil_error(L, 0, "continuum fail");
 	luaL_getmetatable(L, MT_NAME);
    lua_setmetatable(L, -2);
    return 1;
 }
 
 ketama_continuum*
-lketama_get(lua_State *L, index){
+lketama_get(lua_State *L, int index){
 	contdata *data = luaL_checkudata(L, index, MT_NAME);
    return (ketama_continuum *)data->cont;
 }
@@ -58,34 +61,37 @@ lketama_get(lua_State *L, index){
 static int
 lketama_smoke(lua_State *L){
 	contdata *data = luaL_checkudata(L, 1, MT_NAME);
-	if(data->cont) ketama_smoke(data->cont);
+	if(data->cont){
+		ketama_smoke((ketama_continuum)data->cont);
+		data->cont = NULL;
+	}
 	return 0;
 }
 
 static int
 lketama_get_server(lua_State *L){
 	ketama_continuum *cont = lketama_get(L, 1);
-	const char *key = luaL_checkstring(L, 2);
-	mcs *result = ketama_get_server(key, cont);
-	lua_pushstring(L, mcs->ip);
-	lua_pushnumber(L, mcs->point);
+	char *key = (char *)luaL_checkstring(L, 2);
+	mcs *result = ketama_get_server(key, (ketama_continuum)cont);
+	lua_pushstring(L, result->ip);
+	lua_pushnumber(L, result->point);
 	return 2;
 }
 
 static int
 lketama_print_continuum(lua_State *L){
 	ketama_continuum *cont = lketama_get(L, 1);
-	ketama_print_continuum(cont);
+	ketama_print_continuum((ketama_continuum)cont);
 	return 0;
 }
 
 static int
 lketama_compare(lua_State *L){
 	ketama_continuum *cont = lketama_get(L, 1);
-	const char *ipa = lua_checkstring(L, 2);
-	const char *ipb = lua_checkstring(L, 3);
-	mcs *mcsa = ketama_get_server(ipa, cont);
-	mcs *mcsb = ketama_get_server(ipb, cont);
+	const char *ipa = luaL_checkstring(L, 2);
+	const char *ipb = luaL_checkstring(L, 3);
+	mcs *mcsa = ketama_get_server((char*)ipa, (ketama_continuum)cont);
+	mcs *mcsb = ketama_get_server((char*)ipb, (ketama_continuum)cont);
 	int res = ketama_compare(mcsa, mcsb);
 	lua_pushnumber(L, res);
 	return 1;
@@ -93,26 +99,24 @@ lketama_compare(lua_State *L){
 
 static int
 lketama_hashi(lua_State *L){
-	ketama_continuum *cont = lketama_get(L, 1);
-	const char *str = lua_checkstring(L, 2);
-	unsigned int res = ketama_hashi(str);
+	const char *str = luaL_checkstring(L, 2);
+	unsigned int res = ketama_hashi((char*)str);
 	lua_pushnumber(L, res);
 	return 1;
 }
 
 static int
 lketama_md5digest(lua_State *L){
-	ketama_continuum *cont = lketama_get(L, 1);
-	const char *str = lua_checkstring(L, 2);
+	const char *str = luaL_checkstring(L, 2);
 	unsigned char md5pword[16];
-	ketama_md5_digest(str, md5pword);
-	lua_pushlstring(L, md5pword, 16);
+	ketama_md5_digest((char*)str, md5pword);
+	lua_pushfstring(L, "%p", md5pword);
 	return 1;
 }
 
-static luaL_reg pfuncs[] = { {"open", lketama_roll}, {NULL, NULL} };
+static luaL_reg pfuncs[] = { {"roll", lketama_roll}, {NULL, NULL} };
 static luaL_reg mmethods[] = {
-	{"close",				lketama_smoke},
+	{"smoke",				lketama_smoke},
 	{"get_server",			lketama_get_server},
 	{"print_continuum",	lketama_print_continuum},
 	{"compare",				lketama_compare},
@@ -122,7 +126,7 @@ static luaL_reg mmethods[] = {
 };
 
 #define register_constant(s) lua_pushinteger(L,s); lua_setfield(L, -2, #s);
-int luaopen_tokyotyrant(lua_State *L){
+int luaopen_ketama(lua_State *L){
 	luaL_newmetatable(L, MT_NAME);
 	lua_createtable(L, 0, sizeof(mmethods) / sizeof(luaL_reg) -1);
 	luaL_register(L, NULL, mmethods);
