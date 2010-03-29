@@ -32,6 +32,6 @@ int main(int argc, char **argv)
 
     printf( "%u %u %s\n", kh, m->point, m->ip );
   }
-
+  ketama_smoke(c);
   return 0;
 }
