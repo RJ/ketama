@@ -57,32 +57,32 @@ int **shm_data = NULL;
 
 static void
 init_sem_id_tracker() {
-	sem_ids = malloc(sizeof(int)*1024);
+    sem_ids = malloc(sizeof(int)*1024);
 }
 
 static void
 init_shm_id_tracker() {
-	shm_ids = malloc(sizeof(int)*1024);
+    shm_ids = malloc(sizeof(int)*1024);
 }
 
 static void
 init_shm_data_tracker() {
-	shm_data = malloc(sizeof(int*)*1024);
+    shm_data = malloc(sizeof(int*)*1024);
 }
 
 
 static void
 track_shm_data(int *data) {
     if (num_data == shm_data_size) {
-    	void *tmp = realloc(shm_data, sizeof(int*)*(shm_data_size + 1024));
-    	if (tmp != NULL) {
-    		shm_data = tmp;
-    	} else {
-    		sprintf( k_error, "Cannot realloc shm data tracker");
-    		exit(1);
-    	}
+        void *tmp = realloc(shm_data, sizeof(int*)*(shm_data_size + 1024));
+        if (tmp != NULL) {
+    	    shm_data = tmp;
+        } else {
+            sprintf( k_error, "Cannot realloc shm data tracker");
+            exit(1);
+        }
 
-    	shm_data_size += 1024;
+        shm_data_size += 1024;
     }
 
     shm_data[num_data] = data;
@@ -92,15 +92,15 @@ track_shm_data(int *data) {
 static void
 track_sem_id(int semid) {
     if (num_sem_ids == sem_ids_size) {
-    	void *tmp = realloc(sem_ids, sizeof(int)*(sem_ids_size + 1024));
-    	if (tmp != NULL) {
-    		sem_ids = tmp;
-    	} else {
-    		sprintf( k_error, "Cannot realloc semids");
-    		exit(1);
-    	}
+    void *tmp = realloc(sem_ids, sizeof(int)*(sem_ids_size + 1024));
+        if (tmp != NULL) {
+            sem_ids = tmp;
+        } else {
+            sprintf( k_error, "Cannot realloc semids");
+            exit(1);
+        }
 
-    	sem_ids_size += 1024;
+        sem_ids_size += 1024;
     }
 
     sem_ids[num_sem_ids] = semid;
@@ -110,15 +110,15 @@ track_sem_id(int semid) {
 static void
 track_shm_id(int shmid) {
     if (num_shm_ids == shm_ids_size) {
-    	void *tmp = realloc(shm_ids, sizeof(int)*(shm_ids_size + 1024));
-    	if (tmp != NULL) {
-    		shm_ids = tmp;
-    	} else {
-    		sprintf( k_error, "Cannot realloc shmids");
-    		exit(1);
-    	}
+        void *tmp = realloc(shm_ids, sizeof(int)*(shm_ids_size + 1024));
+        if (tmp != NULL) {
+            shm_ids = tmp;
+        } else {
+            sprintf( k_error, "Cannot realloc shmids");
+            exit(1);
+        }
 
-    	shm_ids_size += 1024;
+        shm_ids_size += 1024;
     }
 
     shm_ids[num_shm_ids] = shmid;
@@ -153,9 +153,9 @@ ketama_sem_unlock( int sem_set_id )
 static int
 ketama_sem_init( key_t key )
 {
-	if (sem_ids == NULL) {
-		init_sem_id_tracker();
-	}
+    if (sem_ids == NULL) {
+        init_sem_id_tracker();
+    }
 
     int sem_set_id;
 
@@ -166,8 +166,8 @@ ketama_sem_init( key_t key )
     {
         // create a semaphore set with ID SEM_ID
         sem_set_id = semget( key, 1, IPC_CREAT | 0666 );
-		track_sem_id(sem_set_id);
-        
+        track_sem_id(sem_set_id);
+
 		if ( sem_set_id == -1 )
         {
             strcpy( k_error, "Could not open semaphore!" );
@@ -317,7 +317,7 @@ read_server_definitions( char* filename, unsigned int* count, unsigned long* mem
         fclose( fi );
     }
 
-    *count = numservers;    
+    *count = numservers;
     *memory = memtotal;
     return slist;
 }
@@ -378,13 +378,13 @@ ketama_get_server( char* key, ketama_continuum cont )
 static int
 ketama_create_continuum( key_t key, char* filename )
 {
-	if (shm_ids == NULL) {
-		init_shm_id_tracker();
-	}
+    if (shm_ids == NULL) {
+        init_shm_id_tracker();
+    }
 
-	if (shm_data == NULL) {
-		init_shm_data_tracker();
-	}
+    if (shm_data == NULL) {
+        init_shm_data_tracker();
+    }
 
     int shmid;
     int* data;  /* Pointer to shmem location */
@@ -434,7 +434,7 @@ ketama_create_continuum( key_t key, char* filename )
             sprintf( ss, "%s-%d", slist[i].addr, k );
             ketama_md5_digest( ss, digest );
 
-            /* Use successive 4-bytes from hash as numbers 
+            /* Use successive 4-bytes from hash as numbers
              * for the points on the circle: */
             int h;
             for( h = 0; h < 4; h++ )
@@ -456,8 +456,8 @@ ketama_create_continuum( key_t key, char* filename )
 
     /* Add data to shmmem */
     shmid = shmget( key, MC_SHMSIZE, 0644 | IPC_CREAT );
-	track_shm_id(shmid);
-    
+    track_shm_id(shmid);
+
 	data = shmat( shmid, (void *)0, 0 );
     if ( data == (void *)(-1) )
     {
@@ -487,13 +487,13 @@ ketama_create_continuum( key_t key, char* filename )
 int
 ketama_roll( ketama_continuum* contptr, char* filename )
 {
-	if (shm_ids == NULL) {
-		init_shm_id_tracker();
-	}
+    if (shm_ids == NULL) {
+        init_shm_id_tracker();
+    }
 
-	if (shm_data == NULL) {
-		init_shm_data_tracker();
-	}
+    if (shm_data == NULL) {
+        init_shm_data_tracker();
+    }   
 
     strcpy( k_error, "" );
 
@@ -539,8 +539,8 @@ ketama_roll( ketama_continuum* contptr, char* filename )
     while ( !fmodtime || modtime != *fmodtime )
     {
         shmid = shmget( key, MC_SHMSIZE, 0 ); // read only attempt.
-		track_shm_id(shmid);
-        
+        track_shm_id(shmid);
+
 		data = shmat( shmid, (void *)0, SHM_RDONLY );
 
         if ( data == (void *)(-1) || (*contptr)->modtime != 0 )
@@ -560,14 +560,14 @@ ketama_roll( ketama_continuum* contptr, char* filename )
             }
 /*          else
                 syslog( LOG_INFO, "ketama_create_continuum() successfully finished.\n" );*/
-    
+
             shmid = shmget( key, MC_SHMSIZE, 0 ); // read only attempt.
-			track_shm_id(shmid);
+            track_shm_id(shmid);
 
             data = shmat( shmid, (void *)0, SHM_RDONLY );
             ketama_sem_unlock( sem_set_id );
         }
-    
+
         if ( data == (void *)(-1) )
         {
             strcpy( k_error, "Failed miserably to get pointer to shmemdata!" );
@@ -578,8 +578,8 @@ ketama_roll( ketama_continuum* contptr, char* filename )
         (*contptr)->modtime = ++data;
         (*contptr)->array = data + sizeof( void* );
         fmodtime = (time_t*)( (*contptr)->modtime );
-		
-		track_shm_data(data);
+
+        track_shm_data(data);
     }
 
     return 1;
