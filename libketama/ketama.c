@@ -591,36 +591,36 @@ ketama_smoke( ketama_continuum contptr )
 {
     int i;
     if (shm_data != NULL) {
-		for (i = 0; i < num_data; i++) {
-			shmdt(shm_data[i]);
-		}
-		free(shm_data);
-		shm_data = NULL;
-		num_data = 0;
-		shm_data_size = 1024;
-	}
+        for (i = 0; i < num_data; i++) {
+            shmdt(shm_data[i]);
+        }
+        free(shm_data);
+        shm_data = NULL;
+        num_data = 0;
+        shm_data_size = 1024;
+    }
 
     if (sem_ids != NULL) {
     	for (i = 0; i < num_sem_ids; i++) {
-			semctl(sem_ids[i], 0, IPC_RMID, 0);
-		}
-		free(sem_ids);
-		sem_ids = NULL;
-		num_sem_ids = 0;
-		sem_ids_size = 1024;
+            semctl(sem_ids[i], 0, IPC_RMID, 0);
+        }
+        free(sem_ids);
+        sem_ids = NULL;
+        num_sem_ids = 0;
+        sem_ids_size = 1024;
     }
 
     if (shm_ids != NULL) {
-    	for (i = 0; i < num_shm_ids; i++) {
-    		shmctl(shm_ids[i], IPC_RMID, 0);
-		}
-		free(shm_ids);
-		shm_ids = NULL;
-		num_shm_ids = 0;
-		shm_ids_size = 1024;
+        for (i = 0; i < num_shm_ids; i++) {
+            shmctl(shm_ids[i], IPC_RMID, 0);
+        }
+        free(shm_ids);
+        shm_ids = NULL;
+        num_shm_ids = 0;
+        shm_ids_size = 1024;
     }
 
-    free( contptr );
+    free(contptr);
 }
 
 
