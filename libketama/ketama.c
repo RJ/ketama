@@ -70,7 +70,6 @@ init_shm_data_tracker() {
     shm_data = malloc(sizeof(int*)*1024);
 }
 
-
 static void
 track_shm_data(int *data) {
     if (num_data == shm_data_size) {
