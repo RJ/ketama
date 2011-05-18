@@ -90,4 +90,8 @@ $ python setup.py build
 $ sudo python setup.py install
 $ python tests.py
 
+* erlang
+
+Use the NIF written at rd.io: https://github.com/abs/ketama/tree/rdio/erlang
+
 Don't forget you might have to restart your httpd!
