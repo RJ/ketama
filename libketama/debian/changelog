@@ -1,3 +1,9 @@
+libketama (1.0-2) unstable; urgency=low
+
+  * Add include guard to ketama.h
+
+ -- Ricky Cormier <ricky@last.fm>  Mon, 13 Aug 2012 12:20:57 +0000
+
 libketama (1.0-1) unstable; urgency=low
 
   * Initial release

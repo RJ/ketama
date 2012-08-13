@@ -26,6 +26,9 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef KETAMA_LIBKETAMA_KETAMA_H__
+#define KETAMA_LIBKETAMA_KETAMA_H__
+
 #include <sys/sem.h>    /* semaphore functions and structs. */
 
 #define MC_SHMSIZE  524288  // 512KB should be ample.
@@ -110,4 +113,6 @@ char* ketama_error();
 #ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
 }
 #endif
+
+#endif // KETAMA_LIBKETAMA_KETAMA_H__
 
