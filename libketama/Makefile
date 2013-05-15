@@ -9,7 +9,7 @@ build:
 debug:
 	gcc $(CFLAGS) -g -DDEBUG -o md5-debug.o -c md5.c
 	gcc $(CFLAGS) -g -DDEBUG -o ketama-debug.o -c ketama.c
-	gcc -g -shared -Wl,-soname,libketama.so.1 -lm -o libketama.so.1 ketama-debug.o md5-debug.o
+	gcc -g -shared -Wl,-soname,libketama.so.1 -o libketama.so.1 ketama-debug.o md5-debug.o -lm
 
 test: build
 	LD_LIBRARY_PATH=. gcc $(CFLAGS) -I. -O3 -lm -o ketama_test ketama_test.c ./libketama.so.1
