@@ -153,8 +153,6 @@ public class SockIOPool {
 	private boolean nagle             = true;				// enable/disable Nagle's algorithm
 	private int hashingAlg 		      = KETAMA_HASH;		// default to using the native hash as it is the fastest
 
-	private static MessageDigest md5   = null;				// avoid recurring construction
-
 	// list of all servers
 	private String[] servers;
 	private Integer[] weights;
@@ -517,20 +515,19 @@ public class SockIOPool {
 	 * @return
 	 */
 	public static Long md5HashingAlg(String key) {
-
-		if(md5==null) {
-			try {
-				md5 = MessageDigest.getInstance("MD5");
-			} catch (NoSuchAlgorithmException e) {
-				log.error( "++++ no md5 algorythm found" );
-				throw new IllegalStateException( "++++ no md5 algorythm found");			
-			}
+		MessageDigest md5 = null;
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			log.error("++++ no md5 algorythm found");
+			throw new IllegalStateException("++++ no md5 algorythm found");
 		}
-
 		md5.reset();
 		md5.update(key.getBytes());
 		byte[] bKey = md5.digest();
-		long res = ((long)(bKey[3]&0xFF) << 24) | ((long)(bKey[2]&0xFF) << 16) | ((long)(bKey[1]&0xFF) << 8) | (long)(bKey[0]&0xFF);
+		long res = ((long) (bKey[3] & 0xFF) << 24)
+				| ((long) (bKey[2] & 0xFF) << 16)
+				| ((long) (bKey[1] & 0xFF) << 8) | (long) (bKey[0] & 0xFF);
 		return res;
 	}
 	
