@@ -574,12 +574,12 @@ ketama_roll( ketama_continuum* contptr, char* filename )
             return 0;
         }
 
+        track_shm_data(data);
+
         (*contptr)->numpoints = *data;
         (*contptr)->modtime = ++data;
         (*contptr)->array = data + sizeof( void* );
         fmodtime = (time_t*)( (*contptr)->modtime );
-
-        track_shm_data(data);
     }
 
     return 1;
