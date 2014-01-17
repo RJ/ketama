@@ -176,7 +176,7 @@ PHP_FUNCTION(ketama_roll)
 	{
 		ZEND_REGISTER_RESOURCE( return_value, c, le_ketama_continuum );
 	} else {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create Ketama continuum");
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create Ketama continuum: %s", ketama_error());
 	}
 }
 /* }}} */
