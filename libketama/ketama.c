@@ -41,6 +41,7 @@
 #ifdef DEBUG
 #include <syslog.h>
 #endif
+#include <stdarg.h>
 
 
 char k_error[255] = "";
@@ -54,6 +55,14 @@ int shm_data_size = 1024;
 int *sem_ids = NULL;
 int *shm_ids = NULL;
 int **shm_data = NULL;
+
+static void
+set_error(const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    vsnprintf(k_error, sizeof(k_error), format, ap);
+    va_end(ap);
+}
 
 static void
 init_sem_id_tracker() {
@@ -77,7 +86,7 @@ track_shm_data(int *data) {
         if (tmp != NULL) {
     	    shm_data = tmp;
         } else {
-            sprintf( k_error, "Cannot realloc shm data tracker");
+            set_error("Cannot realloc shm data tracker");
             exit(1);
         }
 
@@ -95,7 +104,7 @@ track_sem_id(int semid) {
         if (tmp != NULL) {
             sem_ids = tmp;
         } else {
-            sprintf( k_error, "Cannot realloc semids");
+            set_error("Cannot realloc semids");
             exit(1);
         }
 
@@ -113,7 +122,7 @@ track_shm_id(int shmid) {
         if (tmp != NULL) {
             shm_ids = tmp;
         } else {
-            sprintf( k_error, "Cannot realloc shmids");
+            set_error("Cannot realloc shmids");
             exit(1);
         }
 
@@ -299,15 +308,14 @@ read_server_definitions( char* filename, unsigned int* count, unsigned long* mem
              */
             *count = 1;
             free( slist );
-            sprintf( k_error, "%s (line %d in %s)",
-                k_error, lineno, filename );
+            set_error( "%s (line %d in %s)", k_error, lineno, filename );
             return 0;
         }
     }
 
     if ( !fi )
     {
-        sprintf( k_error, "File %s doesn't exist!", filename );
+        set_error( "File %s doesn't exist!", filename );
 
         *count = 0;
         return 0;
@@ -397,7 +405,7 @@ ketama_create_continuum( key_t key, char* filename )
      * and we need to set one. */
     if ( numservers < 1 )
     {
-        sprintf( k_error, "No valid server definitions in file %s", filename );
+        set_error( "No valid server definitions in file %s", filename );
         return 0;
     }
     else if ( slist == 0 )
@@ -508,7 +516,7 @@ ketama_roll( ketama_continuum* contptr, char* filename )
     key = ftok( filename, 'R' );
     if ( key == -1 )
     {
-        sprintf( k_error, "Invalid filename specified: %s", filename );
+        set_error( "Invalid filename specified: %s", filename );
         return 0;
     }
 
