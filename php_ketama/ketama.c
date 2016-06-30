@@ -164,7 +164,7 @@ PHP_MINFO_FUNCTION(ketama)
 PHP_FUNCTION(ketama_roll)
 {
 	char *filename;
-	long filename_len;
+	COMPAT_ARG_SIZE_T filename_len;
 
 	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_len ) == FAILURE )
 	{
@@ -242,7 +242,7 @@ PHP_FUNCTION(ketama_get_server)
 	zval *zcontinuum;
 	ketama_continuum continuum;
 	char *key;
-	long key_len;
+	COMPAT_ARG_SIZE_T key_len;
 	mcs* server;
 
 	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "sr", &key, &key_len, &zcontinuum ) == FAILURE )
