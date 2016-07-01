@@ -25,6 +25,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "pecl-compat/compat.h"
 #include "php_ketama.h"
 #include "ketama.h"
 
@@ -33,10 +34,9 @@ ZEND_DECLARE_MODULE_GLOBALS(ketama)
 */
 
 /* True global resources - no need for thread safety here */
-static int le_ketama;
 static int le_ketama_continuum;
 
-static void ketama_continuum_dtor( zend_rsrc_list_entry *rsrc TSRMLS_DC )
+static void ketama_continuum_dtor( zend_resource *rsrc TSRMLS_DC )
 {
 	ketama_continuum continuum = (ketama_continuum)rsrc->ptr;
 	ketama_smoke( continuum );
@@ -164,7 +164,7 @@ PHP_MINFO_FUNCTION(ketama)
 PHP_FUNCTION(ketama_roll)
 {
 	char *filename;
-	long filename_len;
+	COMPAT_ARG_SIZE_T filename_len;
 
 	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_len ) == FAILURE )
 	{
@@ -174,7 +174,7 @@ PHP_FUNCTION(ketama_roll)
 	ketama_continuum c;
 	if ( ketama_roll( &c, filename ) )
 	{
-		ZEND_REGISTER_RESOURCE( return_value, c, le_ketama_continuum );
+		compat_zend_register_resource(return_value, c, le_ketama_continuum TSRMLS_DC);
 	} else {
 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create Ketama continuum: %s", ketama_error());
 	}
@@ -194,8 +194,12 @@ PHP_FUNCTION(ketama_destroy)
 		return;
 	}
 
-	ZEND_FETCH_RESOURCE( continuum, ketama_continuum, &r, -1, "ketama continuum", le_ketama_continuum );
-	zend_list_delete( Z_LVAL_P( r ) );
+	continuum = (ketama_continuum) compat_zend_fetch_resource(r, "ketama continuum", le_ketama_continuum TSRMLS_CC);
+	if (continuum == NULL) {
+		return;
+	}
+
+	compat_zend_delete_resource(r TSRMLS_CC);
 }
 /* }}} */
 
@@ -212,7 +216,11 @@ PHP_FUNCTION(ketama_print_continuum)
         return;
     }
 
-    ZEND_FETCH_RESOURCE( continuum, ketama_continuum, &r, -1, "ketama continuum", le_ketama_continuum );
+    continuum = (ketama_continuum) compat_zend_fetch_resource(r, "ketama continuum", le_ketama_continuum TSRMLS_CC);
+    if (continuum == NULL) {
+        return;
+    }
+
     ketama_print_continuum( continuum );
 }
 /* }}} */
@@ -222,7 +230,7 @@ PHP_FUNCTION(ketama_print_continuum)
    Prints the latest ketama error */
 PHP_FUNCTION(ketama_error)
 {
-    RETURN_STRING( (char *)ketama_error(), 1 );
+    RETURN_STRING((char *)ketama_error());
 }
 /* }}} */
 
@@ -234,7 +242,7 @@ PHP_FUNCTION(ketama_get_server)
 	zval *zcontinuum;
 	ketama_continuum continuum;
 	char *key;
-	long key_len;
+	COMPAT_ARG_SIZE_T key_len;
 	mcs* server;
 
 	if ( zend_parse_parameters( ZEND_NUM_ARGS() TSRMLS_CC, "sr", &key, &key_len, &zcontinuum ) == FAILURE )
@@ -242,12 +250,16 @@ PHP_FUNCTION(ketama_get_server)
 		return;
 	}
 
-	ZEND_FETCH_RESOURCE( continuum, ketama_continuum, &zcontinuum, -1, "ketama continuum", le_ketama_continuum );
+	continuum = (ketama_continuum) compat_zend_fetch_resource(zcontinuum, "ketama continuum", le_ketama_continuum TSRMLS_CC);
+	if (continuum == NULL) {
+		return;
+	}
+
 	server = ketama_get_server( key, continuum );
 
 	array_init( return_value );
 	add_assoc_long( return_value, "point", server->point );
-	add_assoc_string( return_value, "ip", server->ip, 1 );
+	add_assoc_string( return_value, "ip", server->ip );
 }
 /* }}} */
 
