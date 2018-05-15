@@ -20,7 +20,7 @@
 static void pyketama_Continuum_dealloc(pyketama_Continuum *self) {
     ketama_smoke(self->cont);
     free(self->filename);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 PyObject *pyketama_Continuum_new(PyTypeObject *type,
