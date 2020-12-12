@@ -107,7 +107,7 @@ unsigned int ketama_hashi( char* inString );
 void ketama_md5_digest( char* inString, unsigned char md5pword[16] );
 
 /** \brief Error method for error checking.
-  * \return The latest error that occured. */
+  * \return The latest error that occurred. */
 char* ketama_error();
 
 #ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
